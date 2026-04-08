@@ -42,14 +42,6 @@ export default function TicTacToe() {
     return `Player ${currentPlayer}'s Turn`;
   }, [winner, draw, vsAI, currentPlayer]);
 
-  const resetBoard = () => {
-    setBoard(emptyBoard);
-    setCurrentPlayer("X");
-    setWinner(null);
-    setWinningLine(null);
-    setDraw(false);
-  };
-
   const playTone = useCallback(
     (frequency: number, duration: number, volume = 0.12) => {
       if (!soundOn) return;
@@ -83,6 +75,20 @@ export default function TicTacToe() {
     playTone(320, 220, 0.1);
     setTimeout(() => playTone(240, 240, 0.1), 160);
   }, [playTone]);
+
+  const playStartSound = useCallback(() => {
+    playTone(420, 140, 0.1);
+    setTimeout(() => playTone(620, 160, 0.1), 140);
+  }, [playTone]);
+
+  const resetBoard = () => {
+    setBoard(emptyBoard);
+    setCurrentPlayer("X");
+    setWinner(null);
+    setWinningLine(null);
+    setDraw(false);
+    playStartSound();
+  };
 
   const handleMove = useCallback(
     (index: number, player: Player) => {
