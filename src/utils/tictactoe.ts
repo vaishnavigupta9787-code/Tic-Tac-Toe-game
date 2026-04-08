@@ -26,3 +26,69 @@ export function calculateWinner(board: CellValue[]) {
 export function isDraw(board: CellValue[]) {
   return board.every((cell) => cell !== null);
 }
+
+function getAvailableMoves(board: CellValue[]) {
+  return board
+    .map((value, index) => (value === null ? index : null))
+    .filter((value): value is number => value !== null);
+}
+
+function minimax(
+  board: CellValue[],
+  depth: number,
+  isMaximizing: boolean,
+  aiPlayer: Player,
+  humanPlayer: Player
+) {
+  const result = calculateWinner(board);
+  if (result.winner === aiPlayer) return 10 - depth;
+  if (result.winner === humanPlayer) return depth - 10;
+  if (isDraw(board)) return 0;
+
+  const moves = getAvailableMoves(board);
+  if (isMaximizing) {
+    let bestScore = -Infinity;
+    for (const move of moves) {
+      const next = [...board];
+      next[move] = aiPlayer;
+      const score = minimax(next, depth + 1, false, aiPlayer, humanPlayer);
+      bestScore = Math.max(bestScore, score);
+    }
+    return bestScore;
+  }
+
+  let bestScore = Infinity;
+  for (const move of moves) {
+    const next = [...board];
+    next[move] = humanPlayer;
+    const score = minimax(next, depth + 1, true, aiPlayer, humanPlayer);
+    bestScore = Math.min(bestScore, score);
+  }
+  return bestScore;
+}
+
+export function getBestMove(
+  board: CellValue[],
+  aiPlayer: Player,
+  humanPlayer: Player
+) {
+  let bestScore = -Infinity;
+  let bestMove = -1;
+  const moves = getAvailableMoves(board);
+  for (const move of moves) {
+    const next = [...board];
+    next[move] = aiPlayer;
+    const score = minimax(next, 0, false, aiPlayer, humanPlayer);
+    if (score > bestScore) {
+      bestScore = score;
+      bestMove = move;
+    }
+  }
+  return bestMove;
+}
+
+export function getRandomMove(board: CellValue[]) {
+  const moves = getAvailableMoves(board);
+  if (moves.length === 0) return -1;
+  return moves[Math.floor(Math.random() * moves.length)];
+}
